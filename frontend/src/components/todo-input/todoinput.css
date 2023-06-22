@@ -1,0 +1,7 @@
+.todo-input-container {
+  @apply flex flex-row items-center justify-between w-full mt-4;
+}
+
+.todo-input-container input {
+  @apply w-full px-4 py-2 text-gray-700 outline-none border border-gray-300 rounded-lg shadow-lg;
+}
