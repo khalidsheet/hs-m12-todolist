@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
+const Auth = require("./auth");
 const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
@@ -9,12 +10,18 @@ app.use(cors());
 
 const TODOLIST = [];
 
+app.post("/api/login", (req, res) => {
+  Auth.login(req, res);
+});
+
+
+
 // Routes
-app.get("/api/todos", (req, res) => {
+app.get("/api/todos", Auth.verifyToken, (req, res) => {
   res.json(TODOLIST);
 });
 
-app.post("/api/todos", (req, res) => {
+app.post("/api/todos",Auth.verifyToken, (req, res) => {
   const newTodo = {
     id: TODOLIST.length + 1,
     title: req.body.title,
@@ -25,14 +32,14 @@ app.post("/api/todos", (req, res) => {
   res.json(newTodo);
 });
 
-app.put("/api/todos/:id", (req, res) => {
+app.put("/api/todos/:id", Auth.verifyToken, (req, res) => {
   const id = parseInt(req.params.id);
   const todo = TODOLIST.find((todo) => todo.id === id);
   todo.completed = !todo.completed;
   res.json(todo);
 });
 
-app.delete("/api/todos/:id", (req, res) => {
+app.delete("/api/todos/:id", Auth.verifyToken, (req, res) => {
   const id = parseInt(req.params.id);
   const todo = TODOLIST.find((todo) => todo.id === id);
   const index = TODOLIST.indexOf(todo);

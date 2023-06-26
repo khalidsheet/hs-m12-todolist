@@ -2,20 +2,20 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import { TodoList } from "./components/todo-list/TodoList";
 import { TodoInput } from "./components/todo-input/TodoInput";
+import Button from "./components/Button";
+import { useNavigate } from "react-router-dom";
 
 function App() {
-  const [todos, setTodos] = useState([
-    {
-      id: 1,
-      title: "Complete the task",
-      completed: false,
-    },
-    {
-      id: 2,
-      title: "Pack the bags",
-      completed: true,
-    },
-  ]);
+  const [todos, setTodos] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/auth/login");
+    }
+  }, []);
 
   const onAddTodo = (title: string) => {
     const newTodo = {
@@ -28,6 +28,7 @@ function App() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        Authorization: localStorage.getItem("token") || "",
       },
       body: JSON.stringify(newTodo),
     }).then(() => {
@@ -50,6 +51,7 @@ function App() {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        Authorization: localStorage.getItem("token") || "",
       },
       body: JSON.stringify(newTodos.find((todo) => todo.id === id)),
     }).then((res) => {
@@ -62,11 +64,25 @@ function App() {
   }, []);
 
   const getTodoes = async () => {
-    return await (await fetch("http://localhost:5000/api/todos")).json();
+    return await (
+      await fetch("http://localhost:5000/api/todos", {
+        headers: {
+          Authorization: localStorage.getItem("token") || "",
+        },
+      })
+    ).json();
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    navigate("/auth/login");
   };
 
   return (
     <>
+      <Button variant="secondary" onClick={logout}>
+        Logout
+      </Button>
       <div className="flex h-screen w-screen items-center justify-center flex-col">
         <div className="title">
           <h1 className="text-blue-500 text-2xl font-bold">My TODOs</h1>
